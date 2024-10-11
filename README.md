@@ -8,7 +8,7 @@ Figure 3A (and S3): figures_code/figure_3A.ipynb
 
 Figure 3B: figures_code/figure_3B.ipynb
 
-Figure S4: 
+Figure S4: figures_code/figure_S4.ipynb
 
 Figure S5: 
 
