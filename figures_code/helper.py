@@ -332,3 +332,43 @@ def snis_cross_sectional_scaling(df, scaling_type, save=False, length_variable='
 
     return coefficients[0][0]
 
+
+def ibnet_cross_sectional_scaling(df, scaling_type, save=False, length_variable='Sewer Length', variant=''):
+    new_plot()
+    ax = None
+
+    df['Length'] = df[length_variable]
+
+    if scaling_type == "total":
+        coefficients, intercept, score = log_linear_regression(df, ['Total Population'], ['Length'])
+        ax = sns.scatterplot(y='Length', x='Total Population', data=df.sample(frac=1, random_state=0),
+                             hue='Percent Served', alpha=0.5, palette=PALETTE)
+        ax.set_title('Traditional: $Y = Y_0\,N^β$', y=1.0, pad=-14, fontsize=FONT_SIZE)
+        labels('Total Population (inhabitants)', f'{length_variable} (km)')
+        plt.text(10 ** 2, 10 ** 3.25, f'$β = {coefficients[0][0]:.2f}$\n$R^2 = {score:.2f}$', fontsize=11)
+        plot_best_fit(df, 'Total Population', 'Length', 'k', width=1.4, alpha=1)
+
+    elif scaling_type == "served":
+        coefficients, intercept, score = log_linear_regression(df, ['Served Population'], ['Length'])
+        ax = sns.scatterplot(y='Length', x='Served Population', data=df.sample(frac=1, random_state=0),
+                             hue='Percent Served', alpha=0.5, palette=PALETTE)
+        ax.set_title('Generalized: $Y = Y_0\,M^{β}$', y=1.0, pad=-14, fontsize=FONT_SIZE)
+        labels('Served Population (inhabitants)', f'{length_variable} (km)')
+        plt.text(10 ** 2, 10 ** 3.25, f'$β = {coefficients[0][0]:.2f}$\n$R^2 = {score:.2f}$', fontsize=11)
+        plot_best_fit(df, 'Served Population', 'Length', 'k', width=1.4, alpha=1)
+
+    else:
+        print("Invalid scaling type")
+        return 0
+
+    ax.set(xscale='log', yscale='log')
+    plt.xlim(0.4 * 10 ** 2, 0.43 * 10 ** 8)
+    plt.ylim(0.4 * 10 ** 0, 1.2 * 10 ** 5.5)
+    sns.despine()
+    add_color_bar(ax)
+    if save:
+        save_figure(f'../ibnet_figures/{scaling_type}_with_k_{variant}', '2020')
+    else:
+        plt.show()
+
+    return coefficients[0][0]
