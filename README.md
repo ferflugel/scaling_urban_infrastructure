@@ -16,4 +16,4 @@ Figures S6: figures_code/figure_S6.ipynb
 
 Figure S7: figures_code/figure_S7.ipynb
 
-Tables 1 and 2 (and S1, S2, and S3): 
+Tables 1 and 2 (and S1, S2, and S3): figures_code/figure_S7.ipynb
