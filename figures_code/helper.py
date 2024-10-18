@@ -15,8 +15,9 @@ from scipy.interpolate import interp1d
 from matplotlib.colors import Normalize
 from tqdm.notebook import tqdm
 
-warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
-warnings.simplefilter('ignore', np.RankWarning)
+warnings.simplefilter('ignore', category=SettingWithCopyWarning)
+warnings.simplefilter('ignore', category=np.RankWarning)
+warnings.simplefilter('ignore', category=RuntimeWarning)
 
 FONT_SIZE = 12
 PALETTE = sns.color_palette("viridis_r", as_cmap=True)
@@ -802,3 +803,102 @@ def simulate_full_sample(df, full, seed):
 
     return A, B
 
+
+def plot_zipf_distributions(save, data_path, load_data=True):
+
+    plot_list = [[(0.60, 100, 1.2), (0.75, 100, 1.2), (0.90, 100, 1.2)],
+                 [(0.60, 100, 1.0), (0.75, 100, 1.0), (0.90, 100, 1.0)],
+                 [(0.60, 100, 0.8), (0.75, 100, 0.8), (0.90, 100, 0.8)],
+                 [(0.60, 500, 1.2), (0.75, 500, 1.2), (0.90, 500, 1.2)],
+                 [(0.60, 500, 1.0), (0.75, 500, 1.0), (0.90, 500, 1.0)],
+                 [(0.60, 500, 0.8), (0.75, 500, 0.8), (0.90, 500, 0.8)],
+                 [(0.60, 2500, 1.2), (0.75, 2500, 1.2), (0.90, 2500, 1.2)],
+                 [(0.60, 2500, 1.0), (0.75, 2500, 1.0), (0.90, 2500, 1.0)],
+                 [(0.60, 2500, 0.8), (0.75, 2500, 0.8), (0.90, 2500, 0.8)]]
+
+    if not load_data:
+
+        # we now use the functions created above to perform the simulations
+        efficiency_paths = []
+        equality_paths = []
+
+        for index, experiment in enumerate(plot_list):
+
+            # create a list to store data specifically for that experiment
+            efficiency_paths.append([])
+            equality_paths.append([])
+
+            # for beta_value, number_of_cities, exponent in tqdm([(0.60, 1000, 1), (0.75, 1000, 1), (0.90, 1000, 1)]):
+            for beta_value, number_of_cities, exponent in tqdm(experiment):
+                simulation_results = get_zipf(beta_value, number_of_cities, s=exponent, step_size=0.02)
+                efficiency_paths[-1].append(simulation_results[0])
+                equality_paths[-1].append(simulation_results[1])
+
+        with open(data_path, "wb") as file:
+            pickle.dump((efficiency_paths, equality_paths), file)
+
+    with open(data_path, "rb") as fp:
+        efficiency_paths, equality_paths = pickle.load(fp)
+
+    new_plot()
+
+    fig, ax = plt.subplots(3, 3)
+    efficiency_color = np.array([(224, 130, 20), (253, 184, 99), (254, 224, 182)]) / 256
+    equality_color = np.array([(128, 115, 172), (178, 171, 210), (216, 218, 235)]) / 256
+
+    for i, (eff, equ) in enumerate(zip(efficiency_paths, equality_paths)):
+
+        for index, scenario in enumerate(eff):
+            label = 'Optimized Efficiency' if index == 1 else ''
+            ax[i % 3][int(i / 3)].plot(np.array(scenario[0]) / np.max(scenario[0]),
+                                       np.array(scenario[1]) / np.max(scenario[1]),
+                                       c=efficiency_color[index], label=label)
+
+        for index, scenario in enumerate(equ):
+            label = 'Optimized Equality' if index == 1 else ''
+            ax[i % 3][int(i / 3)].plot(np.array(scenario[0]) / np.max(scenario[0]),
+                                       np.array(scenario[1]) / np.max(scenario[1]),
+                                       c=equality_color[index], label=label)
+
+    # Set the ticks and ticklabels for all axes
+    plt.setp(ax, xticks=[], yticks=[])
+    plt.sca(ax[2, 0])
+    plt.xticks([0, 0.5, 1], [0, 50, 100])
+    plt.sca(ax[2, 1])
+    plt.xticks([0, 0.5, 1], [0, 50, 100])
+    plt.sca(ax[2, 2])
+    plt.xticks([0, 0.5, 1], [0, 50, 100])
+
+    plt.sca(ax[0, 0])
+    plt.yticks([0, 0.5, 1], [0, 50, 100])
+    plt.sca(ax[1, 0])
+    plt.yticks([0, 0.5, 1], [0, 50, 100])
+    plt.sca(ax[2, 0])
+    plt.yticks([0, 0.5, 1], [0, 50, 100])
+
+    # Plot adjustments
+    ax[2][1].set_xlabel('Sewer Length (%)', fontsize=12)
+    ax[1][0].set_ylabel('Population Served (%)', fontsize=12)
+    sns.despine()
+
+    if save:
+        save_figure('zipf_distributions')
+    else:
+        plt.show()
+
+    sns.scatterplot(x=[1], y=[1])
+    plt.xlim(0, 3000)
+    plt.ylim(0, 3000)
+
+    plt.setp(ax, xticks=[], yticks=[])
+    plt.xticks([500, 1500, 2500], [100, 500, 2500])
+    plt.yticks([500, 1500, 2500], ['0.6', '0.8', '1.0'])
+    plt.xlabel("Number of Cities")
+    plt.ylabel("Exponent")
+
+    sns.despine()
+
+    if save:
+        save_figure('empty_frame')
+    else:
+        plt.show()

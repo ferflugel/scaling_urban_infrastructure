@@ -1,8 +1,8 @@
 # Improved Scaling Laws
 
-Figure 1 (and S1): Cross-sectional fitting plots for sewer and water data from the IBNET dataset (2015) can be found in figures_code/figure_1.ipynb
+Figure 1 (and S1): figures_code/figure_1.ipynb
 
-Figure 2 (and S2): Cross-sectional and longitudinal fitting plots for sewer and water data from the SNIS dataset can be found in figures_code/figure_2.ipynb
+Figure 2 (and S2): figures_code/figure_2.ipynb
 
 Figure 3A (and S3): figures_code/figure_3A.ipynb
 
@@ -10,10 +10,10 @@ Figure 3B: figures_code/figure_3B.ipynb
 
 Figure S4: figures_code/figure_S4.ipynb
 
-Figure S5: 
+Figure S5: figures_code/figure_S5.ipynb
 
-Figures S6: 
+Figures S6: figures_code/figure_S6.ipynb
 
-Figure S7: 
+Figure S7: figures_code/figure_S7.ipynb
 
 Tables 1 and 2 (and S1, S2, and S3): 
